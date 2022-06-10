@@ -5,7 +5,23 @@ from imutils import resize
 from keras.models import load_model
 from keras.preprocessing.image import img_to_array
 from keras.applications.mobilenet_v2 import preprocess_input
+
+import paho.mqtt.client as paho
+broker="broker.hivemq.com"
+port=1883
+def on_publish(client,userdata,result):             #create function for callback
+    print("data published \n")
+    pass
+
+
+
 model = load_model('fire_detector.model')
+
+client1 = paho.Client("control1")  # create client object
+client1.on_publish = on_publish  # assign function to callback
+client1.connect(broker, port)
+client1.loop_start()
+
 
 vs = cv2.VideoCapture(0)
 while True:
@@ -44,13 +60,20 @@ while True:
         (fire, nofire) = pred
         text = 'Fire' if fire > nofire else 'No Fire'
         if text == "Fire":
+            rett = client1.publish("project/firejetson", "1")
             print("Fire detected")
             cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), thickness=3)
             cv2.rectangle(im, (x - 3, y - 20), (x + w + 2, y), (0, 255, 0), thickness= -1)
             cv2.putText(im, "Fire detected !", (x, y - 7), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), thickness=2)
         else:
+            rett = client1.publish("project/firejetson", "0")
             print("No Fire")
             cv2.putText(im, "No Fire Detected!!!", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), thickness=4)
     im = resize(im, width=1200)
     cv2.imshow('FireDec', im)
-    cv2.waitKey(1)
+    key = cv2.waitKey(10) & 0xFF
+    if key == 27 or key == ord('q'):
+        break
+client1.disconnect()
+cv2.destroyAllWindows()
+vs.stop()
