@@ -52,6 +52,9 @@ flagFire = 0
 flagNofire = 1
 
 vs = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)
+
+flagNofire = 0
+flagFire = 0
 while True:
     success, im = vs.read()
     imgray = cv2.cvtColor(im,cv2.COLOR_BGR2GRAY) # chuyển ảnh xám thành ảnh grayscale
@@ -64,8 +67,6 @@ while True:
     fire_imgs = []
     locs = []
     preds = []
-    flagNofire = 0
-    flagFire = 0
     for contour in contours:
         x, y, w, h = cv2.boundingRect(contour)
         if 20000 < w * h:
