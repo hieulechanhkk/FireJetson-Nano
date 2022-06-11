@@ -2,9 +2,9 @@
 import numpy as np
 import cv2
 from imutils import resize
-from keras.models import load_model
-from keras.preprocessing.image import img_to_array
-from keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 import paho.mqtt.client as paho
 broker="broker.hivemq.com"
