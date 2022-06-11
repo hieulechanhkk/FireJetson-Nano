@@ -48,6 +48,8 @@ client1.on_publish = on_publish  # assign function to callback
 client1.connect(broker, port)
 client1.loop_start()
 
+flagFire = 0
+flagNofire = 1
 
 vs = cv2.VideoCapture(gstreamer_pipeline(), cv2.CAP_GSTREAMER)
 while True:
@@ -86,15 +88,21 @@ while True:
         (fire, nofire) = pred
         text = 'Fire' if fire > nofire else 'No Fire'
         if text == "Fire":
-            rett = client1.publish("project/firejetson", "1")
-            print("Fire detected")
-            cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), thickness=3)
-            cv2.rectangle(im, (x - 3, y - 20), (x + w + 2, y), (0, 255, 0), thickness= -1)
-            cv2.putText(im, "Fire detected !", (x, y - 7), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), thickness=2)
+            if(flagFire==0):
+                rett = client1.publish("project/firejetson", "1")
+                print("Fire detected")
+                cv2.rectangle(im, (x, y), (x+w, y+h), (0, 255, 0), thickness=3)
+                cv2.rectangle(im, (x - 3, y - 20), (x + w + 2, y), (0, 255, 0), thickness= -1)
+                cv2.putText(im, "Fire detected !", (x, y - 7), cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 255, 255), thickness=2)
+                flagFire=1
+                flagNofire=0
         else:
-            rett = client1.publish("project/firejetson", "0")
-            print("No Fire")
-            cv2.putText(im, "No Fire Detected!!!", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), thickness=4)
+            if(flagNofire==0):
+                rett = client1.publish("project/firejetson", "0")
+                print("No Fire")
+                cv2.putText(im, "No Fire Detected!!!", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), thickness=4)
+                flagFire = 0
+                flagNofire = 1
     im = resize(im, width=1200)
     cv2.imshow('FireDec', im)
     key = cv2.waitKey(10) & 0xFF

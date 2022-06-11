@@ -23,6 +23,7 @@ client1.connect(broker, port)
 client1.loop_start()
 
 
+
 vs = cv2.VideoCapture(0)
 while True:
     success, im = vs.read()
